@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>关于我 - Lark</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
   <nav class="navbar">
     <div class="nav-left">Lark 个人主页</div>
@@ -27,5 +29,22 @@
     <p><strong>座右铭：</strong>每多敲一行代码，就离自由近一点</p>
     <blockquote>欢迎交流，邮件随便轰～</blockquote>
   </div>
+
+  <button id="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      const isLight = document.body.classList.contains('light');
+      document.getElementById('theme-icon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('theme-icon').className = 'fas fa-sun';
+    }
+  </script>
 </body>
+
 </html>

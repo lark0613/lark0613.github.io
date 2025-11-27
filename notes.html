@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
+
 <body>
   <nav class="navbar">
     <div class="nav-left">Lark 个人主页</div>
@@ -21,66 +23,58 @@
   </nav>
 
   <div class="notes-container">
-    <h1 style="text-align:center;margin:60px 0 40px;color:#58a6ff;font-size:2.8rem;">我的学习笔记</h1>
-    
-    <div id="loading" style="text-align:center;padding:40px;color:#888;">加载中...</div>
+    <h1>我的学习笔记</h1>
     <div id="note-list"></div>
     <div id="note-content" style="display:none;"></div>
   </div>
 
-  <script>
-    // 自动读取当前仓库 notes/ 文件夹所有 .md 文件（真正零维护！）
-    const GITHUB_REPO = "lark0613/lark0613.github.io";  // ← 改成你的：用户名/仓库名
-    const NOTES_PATH = "notes";
+  <button id="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
 
-    fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${NOTES_PATH}`)
+  <script>
+    // 自动读取 notes 文件夹所有 .md 文件（改这里就行！）
+    const REPO = "lark0613/lark0613.github.io";   // ← 改成你的用户名和仓库名
+
+    fetch(`https://api.github.com/repos/${REPO}/contents/notes`)
       .then(r => r.json())
       .then(files => {
-        document.getElementById("loading").remove();
-        
-        const mdFiles = files
-          .filter(f => f.name.endsWith(".md"))
-          .sort((a, b) => a.name.localeCompare(b.name));
+        const mdFiles = files.filter(f => f.name.endsWith('.md')).sort((a, b) => a.name.localeCompare(b.name));
+        const list = document.getElementById('note-list');
+        const content = document.getElementById('note-content');
 
-        const listEl = document.getElementById("note-list");
-        const contentEl = document.getElementById("note-content");
-
-        mdFiles.forEach(file => {
-          const div = document.createElement("div");
-          div.className = "note-item";
-
-          const link = document.createElement("a");
-          link.href = "javascript:void(0)";
-          link.textContent = file.name.replace(".md", "").replace(/-/g, " ").replace(/_/g, " ");
-          link.style.fontSize = "1.35rem";
-
-          link.onclick = () => {
-            fetch(file.download_url)
-              .then(r => r.text())
-              .then(md => {
-                contentEl.innerHTML = `
-                  <button onclick="back()" style="margin-bottom:25px;padding:12px 24px;background:#58a6ff;border:none;border-radius:12px;color:white;cursor:pointer;">返回列表</button>
-                  <article class="note-article">${marked.parse(md)}</article>
-                `;
-                contentEl.style.display = "block";
-                listEl.style.display = "none";
-                window.scrollTo(0, 0);
-                document.querySelectorAll('pre code').forEach(hljs.highlightElement);
-              });
+        mdFiles.forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'note-item';
+          div.innerHTML = `<a href="javascript:void(0)">${f.name.replace('.md', '').replace(/-/g, ' ')}</a>`;
+          div.onclick = () => {
+            fetch(f.download_url).then(r => r.text()).then(md => {
+              content.innerHTML = `<button onclick="back()" class="back-btn">返回列表</button><article class="note-article">${marked.parse(md)}</article>`;
+              content.style.display = 'block';
+              list.style.display = 'none';
+              document.querySelectorAll('pre code').forEach(hljs.highlightElement);
+            });
           };
-
-          div.appendChild(link);
-          listEl.appendChild(div);
+          list.appendChild(div);
         });
-      })
-      .catch(err => {
-        document.body.insertAdjacentHTML("beforeend", "<p style='text-align:center;color:red;'>加载笔记失败，请检查仓库名是否正确</p>");
       });
 
-    function back() {
-      document.getElementById("note-content").style.display = "none";
-      document.getElementById("note-list").style.display = "block";
+    window.back = () => {
+      document.getElementById('note-content').style.display = 'none';
+      document.getElementById('note-list').style.display = 'block';
+    };
+
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      const isLight = document.body.classList.contains('light');
+      document.getElementById('theme-icon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      document.getElementById('theme-icon').className = 'fas fa-sun';
     }
   </script>
 </body>
+
 </html>
